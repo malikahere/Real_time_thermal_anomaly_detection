@@ -78,3 +78,60 @@ example_image_buffer = 'iVBORw0KGgoAAAANSUhEUgAAACAAAAAYCAYAAACbU/80AAAABmJLR0QA
 # Check for anomaly from buffer
 result = check_anomaly_from_buffer(example_image_buffer)
 print(f"Result: {result}")
+
+import time
+latencies = []
+for _ in range(10):  # Run 100 inferences
+    start_time = time.time()
+    model.predict(input_data)
+    end_time = time.time()
+    latencies.append(end_time - start_time)
+
+average_latency = sum(latencies) / len(latencies)
+print(f"Average Latency: {average_latency:.6f} seconds")
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Example batch sizes and the number of runs for averaging latency
+batch_sizes = [1, 2, 4, 8, 16, 32]
+num_runs = 1  # Number of runs for each batch size to calculate average latency
+
+latencies = []
+
+# Measure latency for each batch size
+for batch_size in batch_sizes:
+    run_latencies = []  # Store latencies for multiple runs
+    
+    for _ in range(num_runs):
+        input_data = np.random.rand(batch_size, 224, 224, 3)  # Random input for the model
+        
+        # Start timing
+        start_time = time.time()
+
+        # Model inference (replace 'model' with your actual model)
+        output = model.predict(input_data)
+
+        # End timing
+        end_time = time.time()
+
+        # Calculate latency for the current run
+        latency = end_time - start_time
+        run_latencies.append(latency)
+    
+    # Calculate the average latency for the current batch size
+    avg_latency = np.mean(run_latencies)
+    latencies.append(avg_latency)
+    
+
+# Plotting the average latency graph
+plt.figure(figsize=(8, 6))
+plt.plot(batch_sizes, latencies, marker='o', linestyle='-', color='b')
+plt.title('Average Model Latency vs Batch Size')
+plt.xlabel('Batch Size')
+plt.ylabel('Average Latency (seconds)')
+plt.grid(True)
+plt.show()
+
